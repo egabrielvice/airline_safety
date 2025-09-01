@@ -1,0 +1,78 @@
+---
+title: "Airline Safety Dataset"
+author: "Escarlet Gabriel Vicente"
+date: "2025-09-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This assignment uses FiveThirtyEight’s **airline safety** dataset, which looks at incidents, fatal accidents, and fatalities for 56 major airlines from 1985–2014.  
+
+The related article I’m following is [**“Should Travelers Avoid Flying Airlines That Have Had Crashes in the Past?”**](https://fivethirtyeight.com/features/should-travelers-avoid-flying-airlines-that-have-had-crashes-in-the-past/) by Nate Silver, which investigates whether an airline’s crash history predicts its future safety record. The findings suggest that while high-profile crashes affect passenger behavior, the correlation between past and future fatal accidents is weak. Instead, broader factors like a country’s wealth may be better predictors of airline safety.
+
+```{r airline_df}
+airline <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/airline-safety/airline-safety.csv")
+head(airline)
+```
+
+## Cleaning & First Observations
+
+I created a smaller subset that keeps exposure and 2000–2014 outcomes. I also renamed the columns for clarity and removed the trailing * from airline names.
+
+```{r cleaning_data}
+airline_clean <- airline[, c("airline",
+                             "avail_seat_km_per_week",
+                             "incidents_00_14",
+                             "fatal_accidents_00_14",
+                             "fatalities_00_14")]
+
+colnames(airline_clean) <- c("Airline",
+                             "SeatKmPerWeek",
+                             "Incidents_2000_2014",
+                             "FatalAccidents_2000_2014",
+                             "Fatalities_2000_2014")
+
+airline_clean$Airline <- sub("\\*$", "", airline_clean$Airline)
+
+head(airline_clean)
+```
+
+## Explorative Analysis
+
+To explore the dataset, I visualized fatalities between 2000–2014.  
+
+```{r airlines_fatalities}
+ord <- order(-airline_clean$Fatalities_2000_2014)
+top_n <- 12
+air_top <- airline_clean[ord, ][1:top_n, ]
+
+op <- par(mar = c(8, 4, 3, 1))
+barplot(air_top$Fatalities_2000_2014,
+        names.arg = air_top$Airline,
+        las = 2, cex.names = 0.7,
+        main = "Top 12 Airlines by Fatalities (2000–2014)",
+        ylab = "Fatalities")
+par(op)
+```
+
+## Conclusion
+
+The cleaned dataset provides a focused view of airline safety outcomes between 2000 and 2014. While some airlines show higher incident or fatality counts, the article emphasizes that these numbers don’t strongly predict future crashes. Instead, incident rates (fatal and non-fatal) tend to be more consistent over time, and airline safety is closely related to broader socioeconomic factors such as the wealth and regulations of the airline’s home country.
+
+## Possible extensions:
+
+- Normalize fatalities and incidents by seat kilometers to fairly compare airlines of different sizes.  
+- Reshape the data to compare 1985–1999 vs 2000–2014 directly.  
+- Update with post-2014 records to see if trends continue.  
+- Investigate outliers (e.g., airlines with unusually high incidents).  
+
+## Links
+
+RPubs: https://rpubs.com/eegabrielvicee
+
+GitHub: https://github.com/egabrielvice
